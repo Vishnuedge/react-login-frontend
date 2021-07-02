@@ -1,0 +1,13 @@
+h1,
+p {
+  font-family: Lato;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+.outer {
+  background: linear-gradient(to right, #88bbbb, #fff);
+  width: 100%;
+  height: 90rem;
+}

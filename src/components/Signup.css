@@ -1,0 +1,13 @@
+.form__outer {
+  padding-top: 50px;
+  /* border: 1px solid black; */
+}
+.name__flex {
+  display: flex;
+  align-items: center;
+}
+.form {
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 25px;
+}
