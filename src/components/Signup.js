@@ -46,7 +46,7 @@ export default function Signup() {
         candidateEmail: userInputs.candidateEmail,
         candidatePassword: userInputs.candidateConfirmPassword
       };
-      axios.post('http://localhost:3001/signdata', newUser);
+      axios.post('http://localhost:3003/auth/signdata', newUser);
       console.log(userInputs);
       resetForm();
     }
