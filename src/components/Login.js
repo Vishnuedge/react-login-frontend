@@ -20,7 +20,7 @@ export default function Login() {
     },
     validate,
     onSubmit: (userInputs, { setSubmitting, resetForm }) => {
-      axios.get('http://localhost:3003/login');
+      axios.post('http://localhost:3003/login');
       console.log(userInputs);
       resetForm();
     }
