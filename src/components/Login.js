@@ -1,6 +1,8 @@
 import React from 'react';
 import { useFormik } from 'formik';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+
 export default function Login() {
   const validate = values => {
     var errors = {};
@@ -20,7 +22,11 @@ export default function Login() {
     },
     validate,
     onSubmit: (userInputs, { setSubmitting, resetForm }) => {
-      axios.post('http://localhost:3003/login');
+      const newLogin = {
+        loginEmail: userInputs.loginEmail,
+        loginPassword: userInputs.loginPassword
+      };
+      axios.post('http://localhost:3003/auth/logindata', newLogin);
       console.log(userInputs);
       resetForm();
     }

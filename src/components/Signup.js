@@ -44,7 +44,7 @@ export default function Signup() {
         candidateFirstName: userInputs.candidateFirstName,
         candidateSecondName: userInputs.candidateSecondName,
         candidateEmail: userInputs.candidateEmail,
-        candidatePassword: userInputs.candidateConfirmPassword
+        candidatePassword: userInputs.candidatePassword
       };
       axios.post('http://localhost:3003/auth/signdata', newUser);
       console.log(userInputs);
