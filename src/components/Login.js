@@ -21,13 +21,17 @@ export default function Login() {
       loginPassword: ''
     },
     validate,
-    onSubmit: (userInputs, { setSubmitting, resetForm }) => {
+    onSubmit: async (userInputs, { setSubmitting, resetForm }) => {
       const newLogin = {
         loginEmail: userInputs.loginEmail,
         loginPassword: userInputs.loginPassword
       };
-      axios.post('http://localhost:3003/auth/logindata', newLogin);
-      console.log(userInputs);
+      const data = await axios.post(
+        'http://localhost:3003/auth/logindata',
+        newLogin
+      );
+      console.log(data.data);
+
       resetForm();
     }
   });
