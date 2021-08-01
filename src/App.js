@@ -3,6 +3,9 @@ import './style.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import Header from './components/Header';
+import Home from './components/Home';
+
+import PrivateRoute from './components/routing/PrivateRoute';
 
 import {
   BrowserRouter,
@@ -19,7 +22,7 @@ export default function App() {
       <BrowserRouter>
         <Header />
         <Switch>
-          <Route exact path="/" component={Login} />
+          <PrivateRoute exact path="/" component={Home} />
           <Route path="/login" component={Login} />
           <Route path="/signup" component={Signup} />
         </Switch>

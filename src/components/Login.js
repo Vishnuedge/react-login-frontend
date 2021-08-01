@@ -1,40 +1,45 @@
-import React from 'react';
-import { useFormik } from 'formik';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-export default function Login() {
-  const validate = values => {
-    var errors = {};
-    if (!values.loginEmail) {
-      errors.loginEmail = '*Required Email*';
-    } else if (!values.loginPassword) {
-      errors.loginPassword = '*Required Password*';
+export default function Login({ history }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (localStorage.getItem('authToken')) {
+      history.push('/');
     }
+  }, [history]);
 
-    return errors;
-  };
+  const handleSubmit = async e => {
+    e.preventDefault();
 
-  const formik = useFormik({
-    initialValues: {
-      loginEmail: '',
-      loginPassword: ''
-    },
-    validate,
-    onSubmit: async (userInputs, { setSubmitting, resetForm }) => {
-      const newLogin = {
-        loginEmail: userInputs.loginEmail,
-        loginPassword: userInputs.loginPassword
-      };
-      const data = await axios.post(
-        'http://localhost:3003/auth/logindata',
-        newLogin
+    const config = {
+      header: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    try {
+      const { data } = await axios.post(
+        'http://localhost:5000/api/auth/login',
+        {
+          email,
+          password
+        },
+        config
       );
-      console.log(data.data);
-
-      resetForm();
+      localStorage.setItem('authToken', data.token);
+      history.push('/');
+    } catch (error) {
+      setError(error.response.data.error);
+      setTimeout(() => {
+        setError('');
+      }, 5000);
     }
-  });
+  };
 
   return (
     <>
@@ -45,9 +50,10 @@ export default function Login() {
               <div className="col-lg-3 col-md-2 " />
               <div className="col-lg-6  col-md-8">
                 {/* FORM */}
-                <form className="form" onSubmit={formik.handleSubmit}>
+                <form className="form" onSubmit={handleSubmit}>
                   {/* FORM TITLE */}
                   <h3 className="mb-3">Log in </h3>
+                  {error && <span>{error}</span>}
                   <h6 className="text-muted mb-3">Continue with us </h6>
                   {/*EMAIL*/}
                   <div class="mb-3">
@@ -60,14 +66,9 @@ export default function Login() {
                       id="exampleInputEmail1"
                       aria-describedby="emailHelp"
                       name="loginEmail"
-                      value={formik.values.loginEmail}
-                      onChange={formik.handleChange}
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
                     />
-                    {formik.errors.loginEmail ? (
-                      <p className="text-danger">{formik.errors.loginEmail}</p>
-                    ) : (
-                      <div />
-                    )}
                   </div>
                   {/* PASSWORD */}
                   <div>
@@ -80,16 +81,9 @@ export default function Login() {
                         class="form-control"
                         id="exampleInputPassword1"
                         name="loginPassword"
-                        value={formik.values.loginPassword}
-                        onChange={formik.handleChange}
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
                       />
-                      {formik.errors.loginPassword ? (
-                        <p className="text-danger">
-                          {formik.errors.loginPassword}
-                        </p>
-                      ) : (
-                        <div />
-                      )}
                     </div>
                   </div>
                   {/* LOGIN BUTTON */}

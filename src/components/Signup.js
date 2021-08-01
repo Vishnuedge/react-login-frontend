@@ -1,56 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Signup.css';
 import { Link } from 'react-router-dom';
-import { useFormik } from 'formik';
+
 import axios from 'axios';
 
-export default function Signup() {
-  //FORMIK ERRORS
+export default function Signup({ history }) {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const validate = values => {
-    var errors = {};
-    if (!values.candidateEmail) {
-      errors.candidateEmail = '*Required Email*';
-    } else if (!values.candidateFirstName) {
-      errors.candidateFirstName = '*Required First Name*';
-    } else if (!values.candidateSecondName) {
-      errors.candidateSecondName = '*Required Second Name*';
-    } else if (!values.candidateEmail) {
-      errors.candidateEmail = '*Required Email*';
-    } else if (!values.candidatePassword) {
-      errors.candidatePassword = '*Required Password*';
-    } else if (!values.candidateConfirmPassword) {
-      errors.candidateConfirmPassword = '*Required Password*';
-    } else if (values.candidatePassword != values.candidateConfirmPassword) {
-      errors.candidateConfirmPassword = `*Password Dont Match*`;
+  useEffect(() => {
+    if (localStorage.getItem('authToken')) {
+      history.push('/');
     }
+  }, [history]);
 
-    return errors;
+  const handleSubmit = async e => {
+    e.preventDefault();
+
+    const config = {
+      header: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    if (password !== confirmPassword) {
+      setPassword('');
+      setConfirmPassword('');
+      setTimeout(() => {
+        setError('');
+      }, 5000);
+      return setError('Passwords do not match');
+    }
+    try {
+      const { data } = await axios.post(
+        'http://localhost:5000/api/auth/register',
+        {
+          firstName,
+          lastName,
+          email,
+          password
+        },
+        config
+      );
+
+      localStorage.setItem('authToken', data.token);
+      history.push('/');
+    } catch (error) {
+      setError(error.response.data.error);
+      setTimeout(() => {
+        setError('');
+      }, 5000);
+    }
   };
-
-  //FORMIK
-
-  const formik = useFormik({
-    initialValues: {
-      candidateFirstName: '',
-      candidateSecondName: '',
-      candidateEmail: '',
-      candidatePassword: '',
-      candidateConfirmPassword: ''
-    },
-    validate,
-    onSubmit: (userInputs, { setSubmitting, resetForm }) => {
-      const newUser = {
-        candidateFirstName: userInputs.candidateFirstName,
-        candidateSecondName: userInputs.candidateSecondName,
-        candidateEmail: userInputs.candidateEmail,
-        candidatePassword: userInputs.candidatePassword
-      };
-      axios.post('http://localhost:3003/auth/signdata', newUser);
-      console.log(userInputs);
-      resetForm();
-    }
-  });
 
   return (
     <>
@@ -61,9 +66,10 @@ export default function Signup() {
               <div className="col-lg-3 col-md-2 " />
               <div className="col-lg-6  col-md-8">
                 {/* FORM */}
-                <form className="form" onSubmit={formik.handleSubmit}>
+                <form className="form" onSubmit={handleSubmit}>
                   {/* FORM TITLE */}
                   <h3>Create an account</h3>
+                  {error && <span>{error}</span>}
                   {/* FORM SUB-TITLE */}
                   <h6 className="text-muted">
                     Your account will allow you to partner with us
@@ -78,17 +84,11 @@ export default function Signup() {
                       class="form-control"
                       id="exampleInputEmail1"
                       aria-describedby="emailHelp"
-                      name="candidateEmail"
-                      value={formik.values.candidateEmail}
-                      onChange={formik.handleChange}
+                      name="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
                     />
-                    {formik.errors.candidateEmail ? (
-                      <p className="text-danger">
-                        {formik.errors.candidateEmail}
-                      </p>
-                    ) : (
-                      <div />
-                    )}
+
                     <div id="emailHelp" class="form-text">
                       We'll never share your email with anyone else.
                     </div>
@@ -103,19 +103,10 @@ export default function Signup() {
                         <input
                           type="text"
                           class="form-control"
-                          name="candidateFirstName"
-                          value={formik.values.candidateFirstName}
-                          onChange={formik.handleChange}
+                          name="firstName"
+                          value={firstName}
+                          onChange={e => setFirstName(e.target.value)}
                         />
-                        <div>
-                          {formik.errors.candidateFirstName ? (
-                            <p className="text-danger">
-                              {formik.errors.candidateFirstName}
-                            </p>
-                          ) : (
-                            <div />
-                          )}
-                        </div>
                       </div>
                     </div>
                     <div class="row  align-items-center">
@@ -126,19 +117,10 @@ export default function Signup() {
                         <input
                           type="text"
                           class="form-control"
-                          name="candidateSecondName"
-                          value={formik.values.candidateSecondName}
-                          onChange={formik.handleChange}
+                          name="lastName"
+                          value={lastName}
+                          onChange={e => setLastName(e.target.value)}
                         />
-                        <div>
-                          {formik.errors.candidateSecondName ? (
-                            <p className="text-danger">
-                              {formik.errors.candidateSecondName}
-                            </p>
-                          ) : (
-                            <div />
-                          )}
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -152,17 +134,11 @@ export default function Signup() {
                       id="inputPassword5"
                       class="form-control"
                       aria-describedby="passwordHelpBlock"
-                      name="candidatePassword"
-                      value={formik.values.candidatePassword}
-                      onChange={formik.handleChange}
+                      name="password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
                     />
-                    {formik.errors.candidatePassword ? (
-                      <p className="text-danger">
-                        {formik.errors.candidatePassword}
-                      </p>
-                    ) : (
-                      <div />
-                    )}
+
                     <div id="passwordHelpBlock" class="form-text">
                       Your password must be 8-20 characters long, contain
                       letters and numbers, and must not contain spaces, special
@@ -179,17 +155,10 @@ export default function Signup() {
                       id="inputPassword5"
                       class="form-control"
                       aria-describedby="passwordHelpBlock"
-                      name="candidateConfirmPassword"
-                      value={formik.values.candidateConfirmPassword}
-                      onChange={formik.handleChange}
+                      name="confirmPassword"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
                     />
-                    {formik.errors.candidateConfirmPassword ? (
-                      <p className="text-danger">
-                        {formik.errors.candidateConfirmPassword}
-                      </p>
-                    ) : (
-                      <div />
-                    )}
                   </div>
                   {/* TERMS AND CONDITION */}
                   <h6 className="text-muted mb-4">
